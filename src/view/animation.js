@@ -1,6 +1,7 @@
 // @flow
 import type { Position } from 'css-box-model';
 import { isEqual, origin } from '../state/position';
+import * as animationNames from './animation-names';
 
 export const curves = {
   outOfTheWay: 'cubic-bezier(0.2, 0, 0, 1)',
@@ -30,6 +31,7 @@ export const transitions = {
     return `transform ${timing}, opacity ${timing}`;
   },
   outOfTheWay: `transform ${outOfTheWayTiming}`,
+  // placeholder: `height ${outOfTheWayTiming}, width ${outOfTheWayTiming}`,
 };
 
 const moveTo = (offset: Position): ?string =>
@@ -37,7 +39,7 @@ const moveTo = (offset: Position): ?string =>
 
 export const transforms = {
   moveTo,
-  drop: (offset: Position, isCombining: boolean) => {
+  drop: (offset: Position, isCombining: boolean): ?string => {
     const translate: ?string = moveTo(offset);
     if (!translate) {
       return null;
@@ -50,5 +52,12 @@ export const transforms = {
 
     // when dropping while combining we also update the scale
     return `${translate} scale(${combine.scale.drop})`;
+  },
+};
+
+export const animations = {
+  placeholder: {
+    in: `${animationNames.placeholderIn} ${outOfTheWayTime}s`,
+    out: `${animationNames.placeholderOut} ${outOfTheWayTime}s`,
   },
 };

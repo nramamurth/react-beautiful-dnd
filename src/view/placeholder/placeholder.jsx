@@ -2,14 +2,35 @@
 import React, { PureComponent } from 'react';
 import type { Placeholder as PlaceholderType } from '../../types';
 import type { PlaceholderStyle } from './placeholder-types';
+import { animations } from '../animation';
+
+type DisplayMode = 'show' | 'hide' | 'animate-in' | 'animate-out';
 
 type Props = {|
+  mode: DisplayMode,
   placeholder: PlaceholderType,
   innerRef?: () => ?HTMLElement,
 |};
 
+const getAnimation = (mode: DisplayMode): string => {
+  // no animation required
+  if (mode === 'show' || mode === 'hide') {
+    return 'none';
+  }
+
+  return mode === 'animate-in'
+    ? animations.placeholder.in
+    : animations.placeholder.out;
+};
+
 export default class Placeholder extends PureComponent<Props> {
   render() {
+    const mode: DisplayMode = this.props.mode;
+
+    if (mode === 'hide') {
+      return null;
+    }
+
     const placeholder: PlaceholderType = this.props.placeholder;
     const { client, display, tagName } = placeholder;
 
@@ -41,6 +62,9 @@ export default class Placeholder extends PureComponent<Props> {
       // Just a little performance optimisation: avoiding the browser needing
       // to worry about pointer events for this element
       pointerEvents: 'none',
+
+      // animating size change
+      animation: getAnimation(mode),
     };
 
     return React.createElement(tagName, { style, ref: this.props.innerRef });
