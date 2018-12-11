@@ -2,27 +2,17 @@
 import memoizeOne from 'memoize-one';
 import invariant from 'tiny-invariant';
 import getStyles, { type Styles } from './get-styles';
-import { prefix } from '../data-attributes';
+import { prefixDataAttribute } from '../data-attributes';
 import type { StyleMarshal } from './style-marshal-types';
 import type { DropReason } from '../../types';
+import getHead from '../dom-node/get-head';
+import createStyleElement from '../dom-node/create-style-element';
 
 let count: number = 0;
 
 // Required for server side rendering as count is persisted across requests
 export const resetStyleContext = () => {
   count = 0;
-};
-
-const getHead = (): HTMLHeadElement => {
-  const head: ?HTMLHeadElement = document.querySelector('head');
-  invariant(head, 'Cannot find the head to append a style to');
-  return head;
-};
-
-const createStyleEl = (): HTMLStyleElement => {
-  const el: HTMLStyleElement = document.createElement('style');
-  el.type = 'text/css';
-  return el;
 };
 
 export default () => {
@@ -45,11 +35,11 @@ export default () => {
   const mount = () => {
     invariant(!always && !dynamic, 'Style marshal already mounted');
 
-    always = createStyleEl();
-    dynamic = createStyleEl();
+    always = createStyleElement();
+    dynamic = createStyleElement();
     // for easy identification
-    always.setAttribute(`${prefix}-always`, context);
-    dynamic.setAttribute(`${prefix}-dynamic`, context);
+    always.setAttribute(prefixDataAttribute('style-always'), context);
+    dynamic.setAttribute(prefixDataAttribute('style-dynamic'), context);
 
     // add style tags to head
     getHead().appendChild(always);

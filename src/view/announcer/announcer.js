@@ -3,6 +3,8 @@ import invariant from 'tiny-invariant';
 import type { Announce } from '../../types';
 import type { Announcer } from './announcer-types';
 import { warning } from '../../dev-warning';
+import prefix from '../prefix';
+import getBody from '../dom-node/get-body';
 
 let count: number = 0;
 
@@ -21,13 +23,8 @@ const visuallyHidden: Object = {
   'clip-path': 'inset(100%)',
 };
 
-const getBody = (): HTMLBodyElement => {
-  invariant(document.body, 'Announcer cannot find document.body');
-  return document.body;
-};
-
 export default (): Announcer => {
-  const id: string = `react-beautiful-dnd-announcement-${count++}`;
+  const id: string = prefix(`announcement-${count++}`);
   let el: ?HTMLElement = null;
 
   const announce: Announce = (message: string): void => {

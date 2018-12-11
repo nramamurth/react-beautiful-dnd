@@ -1,51 +1,70 @@
 // @flow
-import memoizeOne from 'memoize-one';
 import invariant from 'tiny-invariant';
-import getStyles, { type Styles } from './get-styles';
-import { prefix } from '../data-attributes';
-import type { StyleMarshal } from './style-marshal-types';
-import type { DropReason } from '../../types';
+import type { BoxModel } from 'css-box-model';
+import type { Placeholder } from '../../types';
+import { prefixDataAttribute } from '../data-attributes';
+import getHead from '../dom-node/get-head';
+import createStyleElement from '../dom-node/create-style-element';
 
 let count: number = 0;
 
 // Required for server side rendering as count is persisted across requests
-export const resetStyleContext = () => {
+export const resetAnimationContext = () => {
   count = 0;
 };
 
-const getHead = (): HTMLHeadElement => {
-  const head: ?HTMLHeadElement = document.querySelector('head');
-  invariant(head, 'Cannot find the head to append a style to');
-  return head;
-};
+const full = (box: BoxModel): string => `
+  height: ${box.borderBox.height}px;
+  width: ${box.borderBox.width}px;
+  margin-top: ${box.margin.top}px;
+  margin-right: ${box.margin.right}px;
+  margin-bottom: ${box.margin.bottom}px;
+  margin-left: ${box.margin.left}px;
+`;
 
-const createStyleEl = (): HTMLStyleElement => {
-  const el: HTMLStyleElement = document.createElement('style');
-  el.type = 'text/css';
-  return el;
-};
+const empty: string = `
+  height: 0px;
+  width: 0px;
+  margin-top: 0px;
+  margin-right: 0px;
+  margin-bottom: 0px;
+  margin-left: 0px;
+`;
+
+const getAnimations = (context: string, placeholder: Placeholder): string => `
+  @keyframes in-${context} {
+    from {
+      ${empty}
+    }
+
+    to {
+      ${full(placeholder.client)}
+    }
+  }
+
+  @keyframes out-${context} {
+    from {
+      ${full(placeholder.client)}
+    }
+
+    to {
+      ${empty}
+    }
+  }
+`;
 
 export default () => {
   const context: string = `${count++}`;
-  const styles: Styles = getStyles(context);
-  const el: ?HTMLStyleElement = null;
-
-  // using memoizeOne as a way of not updating the innerHTML
-  // unless there is a new value required
-  const setStyle = memoizeOne((proposed: string) => {
-    invariant(el, 'Cannot set style of style tag if not mounted');
-    // This technique works with ie11+ so no need for a nasty fallback as seen here:
-    // https://stackoverflow.com/a/22050778/1374236
-    el.innerHTML = proposed;
-  });
+  let el: ?HTMLStyleElement = null;
 
   // exposing this as a seperate step so that it works nicely with
   // server side rendering
   const mount = () => {
     invariant(!el, 'Animation marshal already mounted');
 
-    el = createStyleEl();
-    el.setAttribute(prefix('animation'), context);
+    el = createStyleElement();
+    // for easy identification
+    el.setAttribute(prefixDataAttribute('animation'), context);
 
     // add style tags to head
     getHead().appendChild(el);
@@ -54,7 +73,7 @@ export default () => {
   const unmount = (): void => {
     invariant(
       el,
-      'Cannot unmount annoucement marshal as it is already unmounted',
+      'Cannot unmount animation marshal as it is already unmounted',
     );
 
     // Remove from head
@@ -63,13 +82,17 @@ export default () => {
     el = null;
   };
 
-  const setProp
+  const setPlaceholder = (placeholder: Placeholder) => {
+    invariant(el, 'Animation marshal must be mounted to set placeholder');
+
+    el.innerHTML = getAnimations(context, placeholder);
+  };
 
   const marshal: AnimationMarshal = {
+    setPlaceholder,
     styleContext: context,
     mount,
     unmount,
-    setProperties,
   };
 
   return marshal;
