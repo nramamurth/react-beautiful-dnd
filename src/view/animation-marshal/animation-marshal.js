@@ -3,15 +3,8 @@ import invariant from 'tiny-invariant';
 import type { BoxModel } from 'css-box-model';
 import type { Placeholder } from '../../types';
 import { prefixDataAttribute } from '../data-attributes';
-import getHead from '../dom-node/get-head';
-import createStyleElement from '../dom-node/create-style-element';
-
-let count: number = 0;
-
-// Required for server side rendering as count is persisted across requests
-export const resetAnimationContext = () => {
-  count = 0;
-};
+import getHead from '../dom-node/util/get-head';
+import createStyleElement from '../dom-node/util/create-style-element';
 
 const full = (box: BoxModel): string => `
   height: ${box.borderBox.height}px;
@@ -53,8 +46,7 @@ const getAnimations = (context: string, placeholder: Placeholder): string => `
   }
 `;
 
-export default () => {
-  const context: string = `${count++}`;
+export default (styleContext: string) => {
   let el: ?HTMLStyleElement = null;
 
   // exposing this as a seperate step so that it works nicely with
@@ -64,7 +56,7 @@ export default () => {
 
     el = createStyleElement();
     // for easy identification
-    el.setAttribute(prefixDataAttribute('animation'), context);
+    el.setAttribute(prefixDataAttribute('animation'), styleContext);
 
     // add style tags to head
     getHead().appendChild(el);
@@ -85,12 +77,11 @@ export default () => {
   const setPlaceholder = (placeholder: Placeholder) => {
     invariant(el, 'Animation marshal must be mounted to set placeholder');
 
-    el.innerHTML = getAnimations(context, placeholder);
+    el.innerHTML = getAnimations(styleContext, placeholder);
   };
 
   const marshal: AnimationMarshal = {
     setPlaceholder,
-    styleContext: context,
     mount,
     unmount,
   };

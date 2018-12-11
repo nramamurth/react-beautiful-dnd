@@ -5,8 +5,8 @@ import getStyles, { type Styles } from './get-styles';
 import { prefixDataAttribute } from '../data-attributes';
 import type { StyleMarshal } from './style-marshal-types';
 import type { DropReason } from '../../types';
-import getHead from '../dom-node/get-head';
-import createStyleElement from '../dom-node/create-style-element';
+import getHead from '../dom-node/util/get-head';
+import createStyleElement from '../dom-node/util/create-style-element';
 
 let count: number = 0;
 
@@ -38,6 +38,7 @@ export default () => {
     always = createStyleElement();
     dynamic = createStyleElement();
     // for easy identification
+
     always.setAttribute(prefixDataAttribute('style-always'), context);
     dynamic.setAttribute(prefixDataAttribute('style-dynamic'), context);
 

@@ -155,6 +155,7 @@ export default class QuoteList extends React.Component<Props> {
             isDraggingOver={dropSnapshot.isDraggingOver}
             isDropDisabled={isDropDisabled}
             {...dropProvided.droppableProps}
+            ref={dropProvided.innerRef}
           >
             {internalScroll ? (
               <ScrollContainer style={scrollContainerStyle}>

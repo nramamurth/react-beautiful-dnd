@@ -4,7 +4,7 @@ import type { Announce } from '../../types';
 import type { Announcer } from './announcer-types';
 import { warning } from '../../dev-warning';
 import prefix from '../prefix';
-import getBody from '../dom-node/get-body';
+import getBody from '../dom-node/util/get-body';
 
 let count: number = 0;
 

@@ -97,6 +97,7 @@ export default class DragDropContext extends React.Component<Props> {
     this.announcer = createAnnouncer();
 
     // create the style marshal
+    // TODO: move style context out and make the creation mount the thing
     this.styleMarshal = createStyleMarshal();
 
     this.store = createStore({
