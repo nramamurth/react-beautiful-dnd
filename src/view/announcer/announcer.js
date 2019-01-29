@@ -3,8 +3,8 @@ import invariant from 'tiny-invariant';
 import type { Announce } from '../../types';
 import type { Announcer } from './announcer-types';
 import { warning } from '../../dev-warning';
+import getBodyElement from '../get-body-element';
 import prefix from '../prefix';
-import getBody from '../dom-node/util/get-body';
 
 let count: number = 0;
 
@@ -64,14 +64,14 @@ export default (): Announcer => {
     Object.assign(el.style, visuallyHidden);
 
     // Add to body
-    getBody().appendChild(el);
+    getBodyElement().appendChild(el);
   };
 
   const unmount = () => {
     invariant(el, 'Will not unmount announcer as it is already unmounted');
 
     // Remove from body
-    getBody().removeChild(el);
+    getBodyElement().removeChild(el);
     // Unset
     el = null;
   };

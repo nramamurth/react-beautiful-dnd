@@ -39,6 +39,7 @@ import {
 import { getFormattedMessage } from '../../dev-warning';
 import { peerDependencies } from '../../../package.json';
 import checkReactVersion from './check-react-version';
+import checkDoctype from './check-doctype';
 
 type Props = {|
   ...Responders,
@@ -176,6 +177,7 @@ export default class DragDropContext extends React.Component<Props> {
 
     if (process.env.NODE_ENV !== 'production') {
       checkReactVersion(peerDependencies.react, React.version);
+      checkDoctype(document);
     }
   }
 

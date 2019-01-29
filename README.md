@@ -418,7 +418,7 @@ In order to use drag and drop, you need to have the part of your `React` tree th
 ```js
 type Responders = {|
   // optional
-  onDragBeforeStart?: OnDragBeforeStartResponder,
+  onBeforeDragStart?: OnBeforeDragStartResponder,
   onDragStart?: OnDragStartResponder,
   onDragUpdate?: OnDragUpdateResponder,
   // required
@@ -703,7 +703,7 @@ class Students extends Component {
 }
 ```
 
-By using the approach you are able to make style changes to a `Droppable` when it is being dragged over, but you avoid re-rendering all of the children unnecessarily. Keep in mind that if you are using `React.PureComponent` that your component will [not respond to changes in the context](https://github.com/facebook/react/issues/2517).
+By using the approach you are able to make style changes to a `Droppable` when it is being dragged over, but you avoid re-rendering all of the children unnecessarily. Keep in mind that if you are using `React.PureComponent` that your component will [not respond to changes in the context with the legacy context API](https://github.com/facebook/react/issues/2517).
 
 When moving into a new list, the visible `Draggables` will have their `render` function called directly even with this optimisation. This is because we need to move those `Draggables` out of the way. The `InnerList` optimisation will prevent the `Droppable` from calling `render` on the whole list from the top down. This optimisation will prevent the non-visible `Draggables` from having their render function called.
 
@@ -713,7 +713,7 @@ Unfortunately we are [unable to apply this optimisation for you](https://medium.
 
 `Draggable` components can be dragged around and dropped onto `Droppable`s. A `Draggable` must always be contained within a `Droppable`. It is **possible** to reorder a `Draggable` within its home `Droppable` or move to another `Droppable`. It is **possible** because a `Droppable` is free to control what it allows to be dropped on it.
 
-Every `Draggable` has a _drag handle_. A _drag handle_ is the element that the user interacts with in order to drag a `Draggable`. A _drag handle_ can be a the `Draggable` element itself, or a child of the `Draggable`. Note that by default a _drag handle_ cannot be an interactive element, since [event handlers are blocked on nested interactive elements](#interactive-child-elements-within-a-draggable). Proper semantics for accessibility are added to the _drag handle_ element. If you wish to use an interactive element, `disableInteractiveElementBlocking` must be set.
+Every `Draggable` has a _drag handle_. A _drag handle_ is the element that the user interacts with in order to drag a `Draggable`. A _drag handle_ can be the `Draggable` element itself, or a child of the `Draggable`. Note that by default a _drag handle_ cannot be an interactive element, since [event handlers are blocked on nested interactive elements](#interactive-child-elements-within-a-draggable). Proper semantics for accessibility are added to the _drag handle_ element. If you wish to use an interactive element, `disableInteractiveElementBlocking` must be set.
 
 ```js
 import { Draggable } from 'react-beautiful-dnd';
@@ -812,7 +812,7 @@ type DraggableProvided = {|
 
 Everything within the _provided_ object must be applied for the `Draggable` to function correctly.
 
-- `provided.innerRef (innerRef: (HTMLElement) => void)`: In order for the `Droppable` to function correctly, **you must** bind the `innerRef` function to the `ReactElement` that you want to be considered the `Draggable` node. We do this in order to avoid needing to use `ReactDOM` to look up your DOM node.
+- `provided.innerRef (innerRef: (HTMLElement) => void)`: In order for the `Draggable` to function correctly, **you must** bind the `innerRef` function to the `ReactElement` that you want to be considered the `Draggable` node. We do this in order to avoid needing to use `ReactDOM` to look up your DOM node.
 
 > For more information on using `innerRef` see our [using `innerRef` guide](/docs/guides/using-inner-ref.md)
 
@@ -1124,6 +1124,18 @@ import { renderToString } from 'react-dom/server';
 resetServerContext();
 renderToString(...);
 ```
+
+## Use the html5 `doctype`
+
+Be sure that you have specified the html5 `doctype` ([Document Type Definition - DTD](https://developer.mozilla.org/en-US/docs/Glossary/Doctype)) for your `html` page:
+
+```html
+<!DOCTYPE html>
+```
+
+A `doctype` impacts browser layout and measurement apis. Not specifying a `doctype` is a world of pain 🔥. Browsers will use some other `doctype` such as ["Quirks mode"](https://en.wikipedia.org/wiki/Quirks_mode) which can drastically change layout and measurement ([more information](https://www.w3.org/QA/Tips/Doctype)). The html5 `doctype` is our only supported `doctype`.
+
+For non `production` builds we will log a warning to the `console` if a html5 `doctype` is not found. You can [disable the warning](#disable-warnings) if you like.
 
 ## Developer only warnings 👷‍
 
